@@ -13,10 +13,12 @@ selected_path = filedialog.askdirectory()
 # selected_path = filedialog.askopenfilename()
 
 for dir in os.walk(selected_path):
-    # print(dir[1])
+    print(dir[1])
     # print(type(dir[1][1]))
     if "logs" in dir[1]:
         logs_path = f"{dir[0]}/logs"
+    elif "log" in dir[1]:
+        logs_path = f"{dir[0]}/log"
 
 logs_directory = os.fsencode(logs_path)
 for file in os.listdir(logs_directory):

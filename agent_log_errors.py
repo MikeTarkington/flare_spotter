@@ -53,13 +53,13 @@ for file in os.listdir(logs_directory):
 # first and last timestamp of error type
 # multi-string search to find combination of error with another term by adding an optional arg
 # show me most common agent, most common integration, most common error from optional argument
-# recommends sortinng by count
+# recommends sorting by count
 
-# compare connfig check.log vs yaml for each integration config to determine possible config errors (beyond just yaml)
-    # config check may nnot have a value that looks to be correctly configed and passed yaml check
+# compare config check.log vs yaml for each integration config to determine possible config errors (beyond just yaml)
+    # config check may not have a value that looks to be correctly configed and passed yaml check
     # would need to use python yaml parser to create dict and check it against dict from config yaml
 # summary of differences between runtime config dump against datadog.yaml
-# try to use python module
 
+# try to use python modules
 # https: // docs.python.org/2/library/argparse.html
 # https: // pyyaml.org/wiki/PyYAMLDocumentation

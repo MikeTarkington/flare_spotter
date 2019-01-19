@@ -8,6 +8,23 @@ root = tk.Tk()
 root.withdraw()
 os.system('''/usr/bin/osascript -e 'tell app "Finder" to set frontmost of process "Python" to true' ''')
 
+# Might want to change the strip function to return a tuple holding the timestamp for each unique log
+# thus being able to rejoin them later for display, revealing the time of the first occurences.
+# Better still, create arrays to not only reconstruct the log entry with timestamp, but also show counts
+# for the number of times that error occurred in the file
+# def strip_timestamp(error_log):
+#         stripped = error_log[20:]
+#         return stripped
+
+# def is_last_stamp(current_stamp, match_list):
+
+def log_breakdown(error_log):
+    breakdown = {
+        "time_stamp": error_log[:20],
+        "message": error_log[20:]
+    }
+    return breakdown
+
 selected_path = filedialog.askdirectory()
 # might use command prompt to allow user to chooose selecting a folder or selecting a file
 # selected_path = filedialog.askopenfilename()
@@ -25,22 +42,14 @@ for file in os.listdir(logs_directory):
         logs_directory = logs_directory.decode("utf-8")
     file_path = f"{logs_directory}/{filename}"
 
-    # Might want to change the strip function to return a tuple holding the timestamp for each unique log 
-    # thus being able to rejoin them later for display, revealing the time of the first occurences.
-    # Better still, create arrays to not only reconstruct the log entry with timestamp, but also show counts
-    # for the number of times that error occurred in the file
-    def strip_timestamp(error_log):
-        stripped = error_log[20:]
-        return stripped
-
     match_list = []
     with open(file_path) as file:
         for line in file:
             if "ERROR" in line: #function to abstract out this step perhaps
                 if len(match_list) == 0:
-                    match_list.append(strip_timestamp(line))
-                elif strip_timestamp(line) not in match_list:
-                    match_list.append(strip_timestamp(line))
+                    match_list.append(log_breakdown(line))
+                elif log_breakdown(line)['message'] not in match_list:
+                    match_list.append(log_breakdown(line))
 
     print("-------------------------------------------------------------------------------")
     print(f"{filename} - Total unique errors: {match_list.__len__()}")

@@ -20,8 +20,10 @@ os.system('''/usr/bin/osascript -e 'tell app "Finder" to set frontmost of proces
 
 def log_breakdown(error_log):
     breakdown = {
-        "time_stamp": error_log[:20],
-        "message": error_log[20:]
+        "first_stamp": error_log[:20],
+        "message": error_log[20:],
+        "last_stamp": error_log[:20],
+        "count": 1
     }
     return breakdown
 
@@ -46,9 +48,12 @@ for file in os.listdir(logs_directory):
     with open(file_path) as file:
         for line in file:
             if "ERROR" in line: #function to abstract out this step perhaps
+                message = log_breakdown(line)['message']
                 if len(match_list) == 0:
                     match_list.append(log_breakdown(line))
-                elif log_breakdown(line)['message'] not in match_list:
+                # elif any(d['message'] == message for d in match_list):
+                #     if datetime.strptime(d['last_stamp'])
+                elif not any(d['message'] == message for d in match_list): #log_breakdown(line)['message'] not in match_list:
                     match_list.append(log_breakdown(line))
 
     print("-------------------------------------------------------------------------------")
@@ -56,7 +61,8 @@ for file in os.listdir(logs_directory):
     print("-------------------------------------------------------------------------------")
 
     for error in match_list:
-        print(error)
+        print("COUNT: {} // FIRST STAMP: {} // LAST STAMP: {}".format(error['count'], error['first_stamp'], error['last_stamp']))
+        print("MESSAGE: {}".format(error['message']))
 
 # arg parse module
 # first and last timestamp of error type

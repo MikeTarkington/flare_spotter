@@ -3,6 +3,7 @@ import re
 import os
 import tkinter as tk
 from tkinter import filedialog
+from datetime import datetime
 
 root = tk.Tk()
 root.withdraw()
@@ -20,9 +21,9 @@ os.system('''/usr/bin/osascript -e 'tell app "Finder" to set frontmost of proces
 
 def log_breakdown(error_log):
     breakdown = {
-        "first_stamp": error_log[:20],
+        "first_stamp": datetime.strptime(error_log[:19], "%Y-%m-%d %H:%M:%S"),
         "message": error_log[20:],
-        "last_stamp": error_log[:20],
+        "last_stamp": datetime.strptime(error_log[:19], "%Y-%m-%d %H:%M:%S"),
         "count": 1
     }
     return breakdown
@@ -49,12 +50,17 @@ for file in os.listdir(logs_directory):
         for line in file:
             if "ERROR" in line: #function to abstract out this step perhaps
                 message = log_breakdown(line)['message']
+                # abstract out the repeat function calls to log breakdown by setting vars to dict attributes like above
                 if len(match_list) == 0:
                     match_list.append(log_breakdown(line))
-                # elif any(d['message'] == message for d in match_list):
-                #     if datetime.strptime(d['last_stamp'])
                 elif not any(d['message'] == message for d in match_list): #log_breakdown(line)['message'] not in match_list:
                     match_list.append(log_breakdown(line))
+                # elif any(log_dict['message'] == message for log_dict in match_list):
+                else:
+                    for log_dict in match_list:
+                        if log_dict['message'] == message and log_breakdown(line)['last_stamp'] > log_dict['last_stamp']:
+                            log_dict['last_stamp'] = log_breakdown(line)['last_stamp']
+                            log_dict['count'] += 1
 
     print("-------------------------------------------------------------------------------")
     print(f"{filename} - Total unique errors: {match_list.__len__()}")

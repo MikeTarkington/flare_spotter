@@ -9,16 +9,6 @@ root = tk.Tk()
 root.withdraw()
 os.system('''/usr/bin/osascript -e 'tell app "Finder" to set frontmost of process "Python" to true' ''')
 
-# Might want to change the strip function to return a tuple holding the timestamp for each unique log
-# thus being able to rejoin them later for display, revealing the time of the first occurences.
-# Better still, create arrays to not only reconstruct the log entry with timestamp, but also show counts
-# for the number of times that error occurred in the file
-# def strip_timestamp(error_log):
-#         stripped = error_log[20:]
-#         return stripped
-
-# def is_last_stamp(current_stamp, match_list):
-
 def log_breakdown(error_log):
     breakdown = {
         "first_stamp": datetime.strptime(error_log[:19], "%Y-%m-%d %H:%M:%S"),
@@ -71,10 +61,9 @@ for file in os.listdir(logs_directory):
         print("MESSAGE: {}".format(error['message']))
 
 # arg parse module
-# first and last timestamp of error type
 # multi-string search to find combination of error with another term by adding an optional arg
-# show me most common agent, most common integration, most common error from optional argument
-# recommends sorting by count
+# show most common agent, most common integration, most common error from optional argument
+# option to sort by count
 
 # compare config check.log vs yaml for each integration config to determine possible config errors (beyond just yaml)
     # config check may not have a value that looks to be correctly configed and passed yaml check

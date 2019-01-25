@@ -9,7 +9,7 @@ Navigate to file directory in terminal and run:
 
 Some Planned Features (as of 1/18/19)(strikethroughs completed)
 - ~~add first and last time stamp to the outputs of each unique error log~~
-- support arguments passed with the run command that would enable search for unquie logs with a particular term and also allow for combining the search for error logs containing a particular term (particularly useful for finding logs related to a particular check)
+- support arguments passed with the run command that would enable search for unique logs with a particular term and also allow for combining the search for error logs containing a particular term (particularly useful for finding logs related to a specific check)
 - ~~add count of occurrences for each error~~
     - show most common agent, integration, error from optional argument sorted by counts
 - Identify errors found in runtime config dump

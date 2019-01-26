@@ -22,12 +22,14 @@ selected_path = filedialog.askdirectory()
 # might use command prompt to allow user to chooose selecting a folder or selecting a file
 # selected_path = filedialog.askopenfilename()
 
+# find log files directory for either agent v5 or 6
 for dir in os.walk(selected_path):
     if "logs" in dir[1]:
         logs_path = f"{dir[0]}/logs"
     elif "log" in dir[1]:
         logs_path = f"{dir[0]}/log"
 
+# loop through and encode/decode current file in the log directory
 logs_directory = os.fsencode(logs_path)
 for file in os.listdir(logs_directory):
     filename = os.fsdecode(file)
@@ -35,27 +37,27 @@ for file in os.listdir(logs_directory):
         logs_directory = logs_directory.decode("utf-8")
     file_path = f"{logs_directory}/{filename}"
 
+    # open file and find uqique errors storing first and last time stamp with repeat count
     match_list = []
     with open(file_path) as file:
         for line in file:
             if "ERROR" in line: #function to abstract out this step perhaps
                 message = log_breakdown(line)['message']
-                # abstract out the repeat function calls to log breakdown by setting vars to dict attributes like above
+                last_stamp = log_breakdown(line)['last_stamp']
                 if len(match_list) == 0:
                     match_list.append(log_breakdown(line))
-                elif not any(d['message'] == message for d in match_list): #log_breakdown(line)['message'] not in match_list:
+                elif not any(d['message'] == message for d in match_list):
                     match_list.append(log_breakdown(line))
-                # elif any(log_dict['message'] == message for log_dict in match_list):
                 else:
                     for log_dict in match_list:
-                        if log_dict['message'] == message and log_breakdown(line)['last_stamp'] > log_dict['last_stamp']:
-                            log_dict['last_stamp'] = log_breakdown(line)['last_stamp']
+                        if log_dict['message'] == message and log_dict['last_stamp'] < last_stamp:
+                            log_dict['last_stamp'] = last_stamp
                             log_dict['count'] += 1
-
+    
+    # print findings from found unique errors in current log file
     print("-------------------------------------------------------------------------------")
     print(f"{filename} - Total unique errors: {match_list.__len__()}")
     print("-------------------------------------------------------------------------------")
-
     for error in match_list:
         print("COUNT: {} // FIRST STAMP: {} // LAST STAMP: {}".format(error['count'], error['first_stamp'], error['last_stamp']))
         print("MESSAGE: {}".format(error['message']))

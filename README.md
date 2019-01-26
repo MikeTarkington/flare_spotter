@@ -4,11 +4,11 @@
 
 - Requires Installation of Python3
 
-This script will quickly identify all unique errors found in Datadog Agent log files produced by a flare. Running the script opens a prompt for file selection on macOS that is used to select the unzipped folder of the flare contents.
+Currently, this script will quickly identify all unique errors found in Datadog Agent log files produced by a flare. Running the script opens a prompt for file selection on macOS that is used to select the unzipped folder of the flare contents.
 
 Navigate to file directory in terminal and run:
 
-`python3 agent_log_errors.py`
+`python3 spotter.py`
 
 ------------------------------------------------
 

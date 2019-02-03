@@ -10,10 +10,10 @@ from datetime import datetime
 parser = argparse.ArgumentParser()
 parser.add_argument('-s', '--sort', choices=['count', 'last_stamp'], default='first_stamp', help='Sort logs in descending order by selected attribute')
 parser.add_argument('-w', '--warn', action='store_true', help='Include warning logs in the output')
-parser.add_argument('-t', '--term', help='Find unique errors containing an additional term ie the name of a check or integration')
+parser.add_argument(
+    '-t', '--term', help='Find unique errors containing an additional term ie the name of a check, integration, symptom (note: term is case sensitive matching)')
 parser.add_argument('-lf', '--log_file', help='Specify name of log file to search rather than searching all') # use a try logic
 args = parser.parse_args()
-print(type(args.term))
 
 root = tk.Tk()
 root.withdraw()
@@ -43,8 +43,6 @@ for dir in os.walk(selected_path):
 def build_log_matches(line):
     message = log_breakdown(line)['message']
     last_stamp = log_breakdown(line)['last_stamp']
-    # print(f"..{last_stamp}..")
-    # print(f"..{message}..")
     if len(match_list) == 0:
         match_list.append(log_breakdown(line))
     elif not any(d['message'] == message for d in match_list):
@@ -65,15 +63,25 @@ for file in os.listdir(logs_directory):
 
     # open file and find uqique errors storing first and last time stamp with repeat count
     match_list = []
-    with open(file_path) as file:
-        if args.warn:
-            for line in file:
-                if "WARN" in line or "ERROR" in line:
-                    build_log_matches(line)
+    with open(file_path) as file:  # consider refactoring to abstract out steps from below
+        if args.term:
+            if args.warn:
+                for line in file:
+                    if ("WARN" in line or "ERROR" in line) and args.term in line:
+                        build_log_matches(line)
+            else:
+                for line in file:
+                    if "ERROR" in line and args.term in line: 
+                        build_log_matches(line)
         else:
-            for line in file:
-                if "ERROR" in line: #function to abstract out this step perhaps
-                    build_log_matches(line)
+            if args.warn:
+                for line in file:
+                    if "WARN" in line or "ERROR" in line:
+                        build_log_matches(line)
+            else:
+                for line in file:
+                    if "ERROR" in line:
+                        build_log_matches(line)
 
     # rearrange log match_list findings based on optional args prior to printing
     if args.sort == 'count':

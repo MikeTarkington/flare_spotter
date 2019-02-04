@@ -57,13 +57,15 @@ def build_log_matches(line):
 logs_directory = os.fsencode(logs_path)
 for file in os.listdir(logs_directory):
     filename = os.fsdecode(file)
+    if args.log_file != None and args.log_file != filename:
+        continue
     if type(logs_directory) == bytes:
         logs_directory = logs_directory.decode("utf-8")
     file_path = f"{logs_directory}/{filename}"
 
     # open file and find uqique errors storing first and last time stamp with repeat count
     match_list = []
-    with open(file_path) as file:  # consider refactoring to abstract out steps from below
+    with open(file_path) as file:  # consider potential refactoring to abstract out steps from below
         if args.term:
             if args.warn:
                 for line in file:

@@ -1,4 +1,4 @@
-# flare_spotter (WIP)
+# flare_spotter
 
 ![flare gun image](https://github.com/MikeTarkington/flare_spotter/blob/master/flare_gun.gif?raw=true)
 

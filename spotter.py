@@ -1,9 +1,10 @@
 
 import re
-import os
-import argparse
+import os #for accessing local file system
+import argparse #for taking arguments when running the script
+import subprocess #ability to run bash command for yaml linting 
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog #supports prompt of local macOS file selector window
 from datetime import datetime
 
 # handle optional arguments for sorting logs output, finding error logs with key terms, etc
@@ -13,6 +14,7 @@ parser.add_argument('-w', '--warn', action='store_true', help='Include warning l
 parser.add_argument(
     '-t', '--term', help='Find unique errors containing an additional term ie the name of a check, integration, symptom (note: term is case sensitive matching)')
 parser.add_argument('-lf', '--log_file', help='Specify name of log file to search rather than searching all') # use a try logic
+parser.add_argument('-y', '--yaml', action='store_false', help='Flag to disable yaml linting output')
 args = parser.parse_args()
 
 root = tk.Tk()
@@ -100,6 +102,27 @@ for file in os.listdir(logs_directory):
         print("COUNT: {} -- FIRST STAMP: {} -- LAST STAMP: {}".format(error['count'], error['first_stamp'], error['last_stamp']))
         print("MESSAGE: {}".format(error['message']))
 
+
+# YAML CONFIG VALIDATION MAIN EXECUTION OF BUSINESS LOGIC - loop through yaml files and run bash linter on each
+if args.yaml != False:
+    print("///////////////////////////////////////////////////////////////////////////////")
+    print("YAML LINTING (requires install of https://yamllint.readthedocs.io/en/stable/index.html)")
+    print("///////////////////////////////////////////////////////////////////////////////")
+    try:
+        # find yaml config files parent directory
+        for dir in os.walk(selected_path):
+            if "etc" in dir[1]:
+                etc_path = f"{dir[0]}/etc"
+
+        etc_directory = os.fsencode(etc_path)
+        for file in os.listdir(etc_path):
+            yaml_filename = os.fsdecode(file)
+            subprocess.run(["yamllint", "-d", "relaxed", f"{etc_path}/{yaml_filename}"])
+    except:
+        print("**ERROR: yamllint must be installed to perform yaml linting steps - see https://yamllint.readthedocs.io/en/stable/index.html**")
+
+
+
 # arg parse module
 # multi-string search to find combination of error with another term by adding an optional arg
 # show most common agent, most common integration, most common error from optional argument
@@ -110,6 +133,5 @@ for file in os.listdir(logs_directory):
     # would need to use python yaml parser to create dict and check it against dict from config yaml
 # summary of differences between runtime config dump against datadog.yaml
 
-# try to use python modules
-# https://docs.python.org/3.7/howto/argparse.html#id1 or https://www.tutorialspoint.com/python/python_command_line_arguments.htm
 # https://pyyaml.org/wiki/PyYAMLDocumentation
+# https://yamllint.readthedocs.io/en/stable/quickstart.html#running-yamllint

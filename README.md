@@ -1,6 +1,6 @@
 # flare_spotter
 
-Currently, this script can be an essential time saver when conducting an investgation about Datadog Agent related issues. Running the script opens a prompt for file selection on MacOS that is used to select the **unzipped** folder of the flare contents. It will quickly identify all unique errors/warnings found in Datadog Agent log files produced by a flare and has a number of CLI options for customizing log outputs.  It also includes a YAML linter supported by yamllint as discussed in installation instructions.
+This script can be an essential time saver when conducting an investgation about Datadog Agent related issues. Running the script opens a prompt for file selection on MacOS that is used to select the **unzipped** folder of the flare contents. It will quickly identify all unique errors/warnings found in Datadog Agent log files produced by a flare and has a number of CLI options for customizing log outputs.  It also includes a YAML linter supported by yamllint as discussed in installation instructions.
 
 ---
 **Basic Usage**
@@ -29,11 +29,21 @@ Navigate to file directory (wherever you placed it) in terminal and run:
 
 ```
 -h --help
--s --sort choices=['count', 'last_stamp'], default='first_stamp help=Sort logs in descending order by selected attribute
--w --warn help=Flag to include warning logs in the output
--t --term help=Find unique errors containing an additional term ie the name of a check, integration, symptom (note: term is case sensitive matching)
--lf --log_file help=Trigger prompt to select a particular log file from a list of filenames
--y --yaml help=Disables output from yaml config file linter
+
+# Sort logs in descending order by selected attribute
+-s --sort choices=['count', 'last_stamp'], default='first_stamp
+
+# Flag to include warning logs in the output
+-w --warn
+
+# Find unique errors containing an additional term ie the name of a check, integration, symptom (note: term is case sensitive matching)
+-t --term
+
+# Trigger prompt to select a particular log file from a list of filenames
+-lf --log_file
+
+# Disables output from yaml config file linter
+-y --yaml
 ```
 
 **examples (can use many more combinations):**
@@ -68,4 +78,4 @@ Some Planned Features (as of 2/4/19)(strikethroughs completed)
     - support calls to the database for stastical analysis of flare error trends
     - provide mechanism for community sourced notes on significance of stored errors (a resource for solutions discovered in relation to a particular error)
 - quick handles for searching errors in Zendesk, Trello, Wiki, and/or Google
-- cli interactive log file selection with numbered list of log file names to choose from (flag argument triggers prompt)
+- ~~cli interactive log file selection with numbered list of log file names to choose from (flag argument triggers prompt)~~

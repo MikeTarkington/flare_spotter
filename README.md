@@ -1,14 +1,29 @@
 # flare_spotter
 
-![flare gun image](https://github.com/MikeTarkington/flare_spotter/blob/master/flare_gun.gif?raw=true)
+Currently, this script can be an essential time saver when conducting an investgation about Datadog Agent related issues. Running the script opens a prompt for file selection on MacOS that is used to select the **unzipped** folder of the flare contents. It will quickly identify all unique errors/warnings found in Datadog Agent log files produced by a flare and has a number of CLI options for customizing log outputs.  It also includes a YAML linter supported by yamllint as discussed in installation instructions.
 
-- Requires Installation of Python3
+---
+**Basic Usage**
 
-Currently, this script will quickly identify all unique errors found in Datadog Agent log files produced by a flare. Running the script opens a prompt for file selection on macOS that is used to select the unzipped folder of the flare contents.
-
-Navigate to file directory in terminal and run:
+Navigate to file directory (wherever you placed it) in terminal and run:
 
 `python3 spotter.py`
+
+![flare gun image](https://github.com/MikeTarkington/flare_spotter/blob/master/flare_gun.gif?raw=true)
+
+---
+
+**Setup**
+
+- Download the `spotter.py` file from this respository
+
+- Requires Installation of Python3. With xcode CLI tools and Homebrew installed already simply run the following (if you need either of the prerequisites see https://docs.python-guide.org/starting/install3/osx/):
+
+    `brew install python `
+
+- YAML linting requires installation of yamllint (https://yamllint.readthedocs.io/en/stable/index.html):
+
+    `brew install yamllint `
 
 **options help:**
 
@@ -17,7 +32,7 @@ Navigate to file directory in terminal and run:
 -s --sort choices=['count', 'last_stamp'], default='first_stamp help=Sort logs in descending order by selected attribute
 -w --warn help=Flag to include warning logs in the output
 -t --term help=Find unique errors containing an additional term ie the name of a check, integration, symptom (note: term is case sensitive matching)
--lf --log_file help=Specify name of log file to search rather than searching all
+-lf --log_file help=Trigger prompt to select a particular log file from a list of filenames
 -y --yaml help=Disables output from yaml config file linter
 ```
 
@@ -27,13 +42,13 @@ Sort unique error and warning logs by count:
 
 `python3 spotter.py -w -s count`
 
-Unique error logs including the string "container" (case sensitive) from a particular file (agent.log):
+Unique error logs including the string "container" (case sensitive) from a particular file selected via CLI prompt:
 
-`python3 spotter.py -lf agent.log -t container`
+`python3 spotter.py -lf -t container`
 
-To disable the yaml linter or the logs output, use either of the following:
+To disable the yaml linter:
 
-`python3 spotter.py -lf none -y`
+`python3 spotter.py -y`
 
 ------------------------------------------------
 

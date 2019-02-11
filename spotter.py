@@ -13,13 +13,16 @@ parser.add_argument('-s', '--sort', choices=['count', 'last_stamp'], default='fi
 parser.add_argument('-w', '--warn', action='store_true', help='Include warning logs in the output')
 parser.add_argument(
     '-t', '--term', help='Find unique errors containing an additional term ie the name of a check, integration, symptom (note: term is case sensitive matching)')
-parser.add_argument('-lf', '--log_file', help='Specify name of log file to search rather than searching all') # use a try logic
+parser.add_argument('-lf', '--log_file', action='store_true', help='Trigger prompt to select a particular log file from a list of filenames')
 parser.add_argument('-y', '--yaml', action='store_false', help='Flag to disable yaml linting output')
 args = parser.parse_args()
 
-root = tk.Tk()
-root.withdraw()
-os.system('''/usr/bin/osascript -e 'tell app "Finder" to set frontmost of process "Python" to true' ''')
+def return_focus():
+    root = tk.Tk()
+    root.withdraw()
+    os.system('''/usr/bin/osascript -e 'tell app "Finder" to set frontmost of process "Python" to true' ''')
+
+return_focus()
 
 def log_breakdown(error_log):
     breakdown = {
@@ -30,11 +33,8 @@ def log_breakdown(error_log):
     }
     return breakdown
 
-selected_path = filedialog.askdirectory()
-# might use command prompt to allow user to chooose selecting a folder or selecting a file
-# selected_path = filedialog.askopenfilename()
-
 # find log files directory for either agent v5 or 6
+selected_path = filedialog.askdirectory()
 for dir in os.walk(selected_path):
     if "logs" in dir[1]:
         logs_path = f"{dir[0]}/logs"
@@ -57,9 +57,24 @@ def build_log_matches(line):
 
 # MAIN EXECUTION OF BUSINESS LOGIC FOR LOGS - loop through and encode/decode current file in the log directory
 logs_directory = os.fsencode(logs_path)
+
+# if user has applied -lf to specify a particular log file
+log_file_nums = {}
+select_log_file = ""
+if args.log_file:
+    for i, file in enumerate(os.listdir(logs_directory)):
+        print(f"{i} - {os.fsdecode(file)}")
+        log_file_nums[i] = os.fsdecode(file)
+    try:
+        return_focus()
+        selection = input("SELECT THE INTEGER CORRESPONDING TO THE DESIRED LOG FILE ABOVE: ")
+        select_log_file = log_file_nums[int(selection)]
+    except:
+        print("ERROR: Ensure you select an integer from the list and not a string. Please rerun your command. Silly goose.")
+
 for file in os.listdir(logs_directory):
     filename = os.fsdecode(file)
-    if args.log_file != None and args.log_file != filename:
+    if args.log_file == True and select_log_file != filename:
         continue
     if type(logs_directory) == bytes:
         logs_directory = logs_directory.decode("utf-8")

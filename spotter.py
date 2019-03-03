@@ -15,6 +15,8 @@ parser.add_argument(
     '-t', '--term', help='Find unique errors containing an additional term ie the name of a check, integration, symptom (note: term is case sensitive matching)')
 parser.add_argument('-lf', '--log_file', action='store_true', help='Trigger prompt to select a particular log file from a list of filenames')
 parser.add_argument('-y', '--yaml', action='store_false', help='Flag to disable yaml linting output')
+parser.add_argument('-ne', '--no_edit', action='store_false', help='Flag to avoid opening flare in code editor')
+
 args = parser.parse_args()
 
 def return_focus():
@@ -33,8 +35,37 @@ def log_breakdown(error_log):
     }
     return breakdown
 
-# find log files directory for either agent v5 or 6
+# prompt user to enter path to folder of the flare
 selected_path = filedialog.askdirectory()
+
+# open flare in selected code editor
+if args.no_edit:
+    return_focus()
+    print("1. VSCode")
+    print("2. Atom")
+    print("3. Sublime 3")
+    print("...or press Return to skip (Note: Using -ne flag prevents this dialog.)")
+    editor_num = input("Select the code editor above to open this flare directory (must be installed in Applications folder): ")
+    
+    if editor_num == "1":
+        try:
+            subprocess.Popen(['/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code', selected_path])
+        except:
+            print("\n**It seems VSCode is not installed in the Applications directory.\n**")
+    elif editor_num == "2":
+        try:
+            subprocess.Popen(['/Applications/Atom.app/Contents/Resources/app/atom.sh', selected_path])
+        except:
+            print("\n**It seems Atom is not installed in the Applications directory.\n**")
+    elif editor_num == "3":
+        try:
+            subprocess.Popen(['/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl', selected_path])
+        except:
+            print("\n**It seems Sublime is not installed in the Applications directory.\n**")
+    else:
+        print("\n**Skipped opening the flare in a code editor**\n")
+
+# find log files directory for either agent v5 or 6
 for dir in os.walk(selected_path):
     if "logs" in dir[1]:
         logs_path = f"{dir[0]}/logs"
@@ -150,3 +181,4 @@ if args.yaml != False:
 
 # https://pyyaml.org/wiki/PyYAMLDocumentation
 # https://yamllint.readthedocs.io/en/stable/quickstart.html#running-yamllint
+

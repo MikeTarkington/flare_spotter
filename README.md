@@ -1,6 +1,6 @@
 # flare_spotter
 
-This script can be an essential time saver when conducting an investgation about Datadog Agent related issues. Running the script opens a prompt for file selection on MacOS that is used to select the **unzipped** folder of the flare contents. It will quickly identify all unique errors/warnings found in Datadog Agent log files produced by a flare and has a number of CLI options for customizing log outputs.  It also includes a YAML linter supported by yamllint as discussed in installation instructions.
+This script can be an essential time saver when conducting an investgation about Datadog Agent related issues. Running the script opens a prompt for file selection on MacOS that is used to select the **unzipped** folder of the flare contents. It will quickly identify all unique errors/warnings found in Datadog Agent log files produced by a flare and has a number of CLI options for customizing log outputs.  It also includes a YAML linter supported by yamllint as discussed in installation instructions.  By default it will also prompt for users to open the flare folder in their preferred code editor (VSCode, Atom, or Sublime 3 supported).
 
 ---
 **Basic Usage**
@@ -17,7 +17,7 @@ Navigate to file directory (wherever you placed it) in terminal and run:
 
 - Download the `spotter.py` file from this respository
 
-- Requires Installation of Python3. With xcode CLI tools and Homebrew installed already simply run the following (if you need either of the prerequisites see https://docs.python-guide.org/starting/install3/osx/):
+- Requires Installation of Python3. With xcode CLI tools and Homebrew installed already, simply run the following command (if you need either of the prerequisites see https://docs.python-guide.org/starting/install3/osx/):
 
     `brew install python `
 
@@ -44,6 +44,9 @@ Navigate to file directory (wherever you placed it) in terminal and run:
 
 # Disables output from yaml config file linter
 -y --yaml
+
+# Flag to avoid opening flare in code editor
+-ne --no_edit        
 ```
 
 **examples (can use many more combinations):**

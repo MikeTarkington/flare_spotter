@@ -41,7 +41,7 @@ selected_path = filedialog.askdirectory()
 # open flare in selected code editor
 if args.no_edit:
     return_focus()
-    print("1. VSCode")
+    print("\n1. VSCode")
     print("2. Atom")
     print("3. Sublime 3")
     print("...or press Return to skip (Note: Using -ne flag prevents this dialog.)")
@@ -141,7 +141,7 @@ for file in os.listdir(logs_directory):
 
 
     # print findings from found unique errors in current log file
-    print("-------------------------------------------------------------------------------")
+    print("\n-------------------------------------------------------------------------------")
     print(f"{filename} - Total unique errors: {match_list.__len__()} (sorted by {args.sort})")
     print("-------------------------------------------------------------------------------")
     for error in match_list:
@@ -151,7 +151,7 @@ for file in os.listdir(logs_directory):
 
 # YAML CONFIG VALIDATION MAIN EXECUTION OF BUSINESS LOGIC - loop through yaml files and run bash linter on each
 if args.yaml != False:
-    print("///////////////////////////////////////////////////////////////////////////////")
+    print("\n///////////////////////////////////////////////////////////////////////////////")
     print("YAML LINTING (requires install of https://yamllint.readthedocs.io/en/stable/index.html)")
     print("///////////////////////////////////////////////////////////////////////////////")
     try:
@@ -167,13 +167,45 @@ if args.yaml != False:
     except:
         print("**ERROR: yamllint must be installed to perform yaml linting steps - see https://yamllint.readthedocs.io/en/stable/index.html**")
 
+# -------------------------------
+# misc configurations/info
+# -------------------------------
+print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+print("MISCELLANEOUS CONFIGS/INFO")
+print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
+def find_file(names, path):
+    for root, dirs,files in os.walk(path):
+        for name in names:
+            if name in files:
+                return os.path.join(root, name)
+
+# summarize status.log/info.log
+status_info_path = find_file(["status.log", "info.log"], selected_path)
+
+print(f"Summary of {status_info_path}:")
+with open(status_info_path) as file:
+    for line in file:
+        if "Agent (v" in line:
+            print(f"    {line}")
+        elif "Collector (v" in line:
+            print(f"    Agent Version: {line[10:].rstrip()}")
 
 
-# arg parse module
-# multi-string search to find combination of error with another term by adding an optional arg
+# summarize datadog.yaml/.conf
+datadog_conf_path = find_file(["datadog.yaml", "datadog.conf"], selected_path)
+
+print(f"Summary of {datadog_conf_path}:")
+with open(datadog_conf_path) as file:
+    for line in file:
+        if "log_level" in line:
+            print(f"    {line}")
+
+
+
+
+
 # show most common agent, most common integration, most common error from optional argument
-# option to sort by count
-
 # compare config check.log vs yaml for each integration config to determine possible config errors (beyond just yaml)
     # config check may not have a value that looks to be correctly configed and passed yaml check
     # would need to use python yaml parser to create dict and check it against dict from config yaml

@@ -4,6 +4,7 @@ import os #for accessing local file system
 import argparse #for taking arguments when running the script
 import subprocess #ability to run bash command for yaml linting 
 import tkinter as tk
+import re # regex package
 from tkinter import filedialog #supports prompt of local macOS file selector window
 from datetime import datetime
 
@@ -16,6 +17,7 @@ parser.add_argument(
 parser.add_argument('-lf', '--log_file', action='store_true', help='Trigger prompt to select a particular log file from a list of filenames')
 parser.add_argument('-y', '--yaml', action='store_false', help='Flag to disable yaml linting output')
 parser.add_argument('-ne', '--no_edit', action='store_false', help='Flag to avoid opening flare in code editor')
+parser.add_argument('-ex', '--exclude_string', action='store', help='Enter regex or string to exclude when parsing logs')
 
 args = parser.parse_args()
 
@@ -73,7 +75,7 @@ for dir in os.walk(selected_path):
         logs_path = f"{dir[0]}/log"
 
 # fuction to build a matched list of logs meeting the criteria for inclusion
-def build_log_matches(line):
+def build_log_matches(line, regex=None):
     message = log_breakdown(line)['message']
     last_stamp = log_breakdown(line)['last_stamp']
     if len(match_list) == 0:
@@ -88,6 +90,8 @@ def build_log_matches(line):
 
 # MAIN EXECUTION OF BUSINESS LOGIC FOR LOGS - loop through and encode/decode current file in the log directory
 logs_directory = os.fsencode(logs_path)
+# will either be a regex pattern obj or None depeneding of if we've gotten an arg supplied
+log_regex = (re.compile(args.exclude_string), None)[args.exclude_string == None]
 
 # if user has applied -lf to specify a particular log file
 log_file_nums = {}
@@ -111,7 +115,7 @@ for file in os.listdir(logs_directory):
         logs_directory = logs_directory.decode("utf-8")
     file_path = f"{logs_directory}/{filename}"
 
-    # open file and find uqique errors storing first and last time stamp with repeat count
+    # open file and find unique errors storing first and last time stamp with repeat count
     match_list = []
     with open(file_path) as file:  # consider potential refactoring to abstract out steps from below
         if args.term:

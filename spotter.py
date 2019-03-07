@@ -7,6 +7,7 @@ import tkinter as tk
 import re # regex package
 from tkinter import filedialog #supports prompt of local macOS file selector window
 from datetime import datetime
+from log_parser import build_errors, print_dict
 
 # handle optional arguments for sorting logs output, finding error logs with key terms, etc
 parser = argparse.ArgumentParser()
@@ -18,6 +19,8 @@ parser.add_argument('-lf', '--log_file', action='store_true', help='Trigger prom
 parser.add_argument('-y', '--yaml', action='store_false', help='Flag to disable yaml linting output')
 parser.add_argument('-ne', '--no_edit', action='store_false', help='Flag to avoid opening flare in code editor')
 parser.add_argument('-re', '--exclude_string', action='store', help='Enter regex or string to exclude when parsing logs')
+parser.add_argument('-ll', '--loosen_logs', action='store_true', help='Loosen matching requirements for log errors. I.e. different hosts but same error will be countered as 1 and not 2 errors.')
+
 
 args = parser.parse_args()
 
@@ -39,7 +42,6 @@ def log_breakdown(error_log):
 
 # prompt user to enter path to folder of the flare
 selected_path = filedialog.askdirectory()
-
 # open flare in selected code editor
 if args.no_edit:
     return_focus()
@@ -77,9 +79,12 @@ for dir in os.walk(selected_path):
 # fuction to build a matched list of logs meeting the criteria for inclusion
 def build_log_matches(line, log_regex=None):
     # if we have a regex obj, and we've found our rejex on the line
-    if (log_regex != False and log_regex.search(line)):
+    if (log_regex != False and log_regex.search(line)): # won't return truthy if search fails
         return None # early return
     message = log_breakdown(line)['message']
+    # if we have non-unique logs enabled
+    if args.loosen_logs:
+        build_errors(message)
     last_stamp = log_breakdown(line)['last_stamp']
     if len(match_list) == 0:
         match_list.append(log_breakdown(line))
@@ -146,7 +151,6 @@ for file in os.listdir(logs_directory):
     elif args.sort == 'last_stamp':
         match_list = sorted(match_list, key=lambda k: k['last_stamp'], reverse=True)
 
-
     # print findings from found unique errors in current log file
     print("-------------------------------------------------------------------------------")
     print(f"{filename} - Total unique errors: {match_list.__len__()} (sorted by {args.sort})")
@@ -155,6 +159,8 @@ for file in os.listdir(logs_directory):
         print("COUNT: {} -- FIRST STAMP: {} -- LAST STAMP: {}".format(error['count'], error['first_stamp'], error['last_stamp']))
         print("MESSAGE: {}".format(error['message']))
 
+if (args.loosen_logs):
+    print_dict();
 
 # YAML CONFIG VALIDATION MAIN EXECUTION OF BUSINESS LOGIC - loop through yaml files and run bash linter on each
 if args.yaml != False:

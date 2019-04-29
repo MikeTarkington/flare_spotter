@@ -181,25 +181,57 @@ def find_file(names, path):
                 return os.path.join(root, name)
 
 # summarize status.log/info.log
-status_info_path = find_file(["status.log", "info.log"], selected_path)
-
+status_info_path = find_file(["status.log", "info.log"], selected_path) #may need to reconsider this as it seems some agent 5 flares can have both status.log and info.log so it will find the status.log but not contain any of the agent 5 matches
 print(f"Summary of {status_info_path}:")
 with open(status_info_path) as file:
     for line in file:
-        if "Agent (v" in line:
-            print(f"    {line}")
+        if re.match(r'(?<!\S)Agent \(v', line):
+            print(f"    {line.rstrip()}")
         elif "Collector (v" in line:
             print(f"    Agent Version: {line[10:].rstrip()}")
-
+        if "  os:" in line:
+            print(line.rstrip())
+        if "  platformVersion:" in line:
+            print(line.rstrip())
+        if "  hostname:" in line:
+            print(line.rstrip())
+        if "NTP offset:" in line:
+            print(line.rstrip())
+        if "Check Runners:" in line:
+            print(f"  {line.rstrip()}")
 
 # summarize datadog.yaml/.conf
 datadog_conf_path = find_file(["datadog.yaml", "datadog.conf"], selected_path)
-
-print(f"Summary of {datadog_conf_path}:")
+print(f"\nSummary of {datadog_conf_path}:")
 with open(datadog_conf_path) as file:
     for line in file:
         if "log_level" in line:
-            print(f"    {line}")
+            print(f"    {line.rstrip()}")
+        if "apm_config:" in line:
+            print(f"    apm_config - {next(file)[2:].rstrip()}")
+        if "logs_enabled:" in line:
+            print(f"    {line.rstrip()}")
+        if "check_runners:" in line:
+            print(f"    {line.rstrip()}")
+        if "docker_labels_as_tags:" in line:
+            print(f"    {line.rstrip()}")
+
+# summarize runtime config dump
+runtime_conf_path = find_file(["runtime_config_dump.yaml"], selected_path)
+print(f"\nSummary of {runtime_conf_path}:")
+print("(takes precedence over datadog.yaml but not envvar.log)")
+with open(runtime_conf_path) as file:
+    for line in file:
+        if "log_level" in line:
+            print(f"    {line.rstrip()}")
+        if "apm_config:" in line:
+            print(f"    apm_config - {next(file)[2:].rstrip()}")
+        if "logs_enabled:" in line:
+            print(f"    {line.rstrip()}")
+        if "check_runners:" in line:
+            print(f"    {line.rstrip()}")
+        if "docker_labels_as_tags:" in line:
+            print(f"    {line.rstrip()}")
 
 
 

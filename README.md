@@ -68,9 +68,9 @@ Unique error logs including the string "container" (case sensitive) from a parti
 
 `python3 spotter.py -lf -t container`
 
-To disable the yaml linter:
+To disable the yaml linter and the prompt for opening an editor:
 
-`python3 spotter.py -y`
+`python3 spotter.py -y -ne`
 
 ------------------------------------------------
 

@@ -214,6 +214,7 @@ logs_enabled = ['logs_enabled:', 'N/A', 'N/A', 'N/A']
 check_runners = ['check_runners:', 'N/A', 'N/A', 'N/A']
 use_dogstatsd = ['use_dogstatsd:', 'N/A', 'N/A', 'N/A']
 dogstatsd_non_local_traffic = ['dogstatsd_non_local_traffic:', 'N/A', 'N/A', 'N/A']
+process_agent = ['process_agent_enabled:', 'N/A', 'N/A', 'N/A']
 
 def get_config_val(line):
     return re.search(r'(?<=: )[^\]]+', line.rstrip()).group(0)
@@ -236,6 +237,8 @@ try:
                 use_dogstatsd[1] = get_config_val(line)
             if "dogstatsd_non_local_traffic:" in line:
                 dogstatsd_non_local_traffic[1] = get_config_val(line)
+            if "process_config:" in line:
+                process_agent[1] = re.search(r'(?<=: )[^\]]+', next(file)[2:].rstrip()).group(0)
 except:
     pass
 
@@ -257,6 +260,8 @@ try:
                 use_dogstatsd[2] = get_config_val(line)
             if "dogstatsd_non_local_traffic:" in line:
                 dogstatsd_non_local_traffic[2] = get_config_val(line)
+            if "process_config:" in line:
+                process_agent[1] = re.search(r'(?<=: )[^\]]+', next(file)[2:].rstrip()).group(0)
 except:
     pass
 
@@ -280,26 +285,25 @@ try:
                 use_dogstatsd[3] = get_envvar(line)
             if "-  DD_DOGSTATSD_NON_LOCAL_TRAFFIC" in line:
                 dogstatsd_non_local_traffic[3] = get_envvar(line)
+            if "- DD_PROCESS_AGENT_ENABLED" in line:
+                process_agent[3] = get_envvar(line)
 except:
     pass
 
 # print a comparison table for configs from their various sources
 print("\nNOTE: envvar.log values take precedence over runtime_config_dump.yaml and the config dump over datadog.yaml")
 print("NOTE: Table does not support agent v5 so check datadog.conf for configs")
+configs_arrs = [log_levels, check_runners, apm_enabled, logs_enabled, process_agent,
+                use_dogstatsd, dogstatsd_non_local_traffic]
 try:
     t = PrettyTable(['', 'datadog.yaml', 'runtime_config_dump.yaml', 'envvars.log'])
-    t.add_row(log_levels)
-    t.add_row(apm_enabled)
-    t.add_row(logs_enabled)
-    t.add_row(check_runners)
-    t.add_row(use_dogstatsd)
-    t.add_row(dogstatsd_non_local_traffic)
+    for config in configs_arrs:
+        t.add_row(config)
     print(t)
 except:
     print("\n***IT SEEMS PrettyTable IS NOT INSTALLED SO YOU GOT THIS UGLY PRINTOUT***")
     print("You should probably install it using `pip install PrettyTable` https://pypi.org/project/PrettyTable/")
     print("\nConfig - datadog.yaml - runtime_config_dump.yaml - envvars.log")
-    configs_arrs = [log_levels, apm_enabled, logs_enabled, check_runners, use_dogstatsd, dogstatsd_non_local_traffic] 
     for config in configs_arrs:
         print(f"{config[0]} - {config[1]} - {config[2]} - {config[3]}")
 

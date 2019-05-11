@@ -29,7 +29,7 @@ Navigate to file directory (wherever you placed it) in terminal and run:
 
     `pip install PrettyTable`
 
-- That'$ it! Datadog to the rescue! Now you can run the following command to use it (and explore options below to get the most customization when investigating):
+- That'$ it! Datadog to the rescue! Now you can run the following command to use the script (and explore options below to get the most customization when investigating):
 
     `python3 spotter.py`
 

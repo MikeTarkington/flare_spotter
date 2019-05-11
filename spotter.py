@@ -286,14 +286,22 @@ except:
 # print a comparison table for configs from their various sources
 print("\nNOTE: envvar.log values take precedence over runtime_config_dump.yaml and the config dump over datadog.yaml")
 print("NOTE: Table does not support agent v5 so check datadog.conf for configs")
-t = PrettyTable(['', 'datadog.yaml', 'runtime_config_dump.yaml', 'envvars.log'])
-t.add_row(log_levels)
-t.add_row(apm_enabled)
-t.add_row(logs_enabled)
-t.add_row(check_runners)
-t.add_row(use_dogstatsd)
-t.add_row(dogstatsd_non_local_traffic)
-print(t)
+try:
+    t = PrettyTable(['', 'datadog.yaml', 'runtime_config_dump.yaml', 'envvars.log'])
+    t.add_row(log_levels)
+    t.add_row(apm_enabled)
+    t.add_row(logs_enabled)
+    t.add_row(check_runners)
+    t.add_row(use_dogstatsd)
+    t.add_row(dogstatsd_non_local_traffic)
+    print(t)
+except:
+    print("\n***IT SEEMS PrettyTable IS NOT INSTALLED SO YOU GOT THIS UGLY PRINTOUT***")
+    print("You should probably install it using `pip install PrettyTable` https://pypi.org/project/PrettyTable/")
+    print("\nConfig - datadog.yaml - runtime_config_dump.yaml - envvars.log")
+    configs_arrs = [log_levels, apm_enabled, logs_enabled, check_runners, use_dogstatsd, dogstatsd_non_local_traffic] 
+    for config in configs_arrs:
+        print(f"{config[0]} - {config[1]} - {config[2]} - {config[3]}")
 
 # show most common agent, most common integration, most common error from optional argument
 # compare config check.log vs yaml for each integration config to determine possible config errors (beyond just yaml)

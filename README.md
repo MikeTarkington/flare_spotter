@@ -1,6 +1,6 @@
 # flare_spotter
 
-This script can be an essential time saver when conducting an investgation about Datadog Agent related issues. Running the script opens a prompt for file selection on MacOS that is used to select the **unzipped** folder of the flare contents. It will quickly identify all unique errors/warnings found in Datadog Agent log files produced by a flare and has a number of CLI options for customizing log outputs.  It also includes a YAML linter supported by yamllint as discussed in installation instructions.  By default it will also prompt for users to open the flare folder in their preferred code editor (VSCode, Atom, or Sublime 3 supported).
+This script can be an essential time saver when conducting an investgation about Datadog Agent related issues. Running the script opens a prompt for file selection on MacOS that is used to select the **unzipped** folder of the flare contents. It will quickly identify all unique errors/warnings found in Datadog Agent log files produced by a flare and has a number of CLI options for customizing log outputs.  It includes a YAML linter supported by yamllint (as discussed in installation instructions) that will check for syntax errors in all yaml config files.  Additionally, it will print a summary of common misc configs and status values referenced for troubleshooting.  By default it will also prompt for users to open the flare folder in their preferred code editor (VSCode, Atom, or Sublime 3 supported).
 
 ---
 **Basic Usage**
@@ -24,6 +24,10 @@ Navigate to file directory (wherever you placed it) in terminal and run:
 - YAML linting requires installation of yamllint (https://yamllint.readthedocs.io/en/stable/index.html):
 
     `brew install yamllint `
+
+- Printing misc status and configs in a handy table requires installation of PrettyTable (https://pypi.org/project/PrettyTable/)
+
+    `pip install PrettyTable`
 
 **options help:**
 

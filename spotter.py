@@ -6,6 +6,7 @@ import subprocess #ability to run bash command for yaml linting
 import tkinter as tk
 from tkinter import filedialog #supports prompt of local macOS file selector window
 from datetime import datetime
+from prettytable import PrettyTable
 
 # handle optional arguments for sorting logs output, finding error logs with key terms, etc
 parser = argparse.ArgumentParser()
@@ -36,12 +37,17 @@ def log_breakdown(error_log):
     return breakdown
 
 # prompt user to enter path to folder of the flare
+
 selected_path = filedialog.askdirectory()
+if len(selected_path) <= 1:
+    print("\nIt appears a flare directory was not selected. Please try again  ( ͡° ͜ ͡°)\n")
+    exit()
+    
 
 # open flare in selected code editor
 if args.no_edit:
     return_focus()
-    print("1. VSCode")
+    print("\n1. VSCode")
     print("2. Atom")
     print("3. Sublime 3")
     print("...or press Return to skip (Note: Using -ne flag prevents this dialog.)")
@@ -88,6 +94,7 @@ def build_log_matches(line):
 
 # MAIN EXECUTION OF BUSINESS LOGIC FOR LOGS - loop through and encode/decode current file in the log directory
 logs_directory = os.fsencode(logs_path)
+
 
 # if user has applied -lf to specify a particular log file
 log_file_nums = {}
@@ -141,7 +148,7 @@ for file in os.listdir(logs_directory):
 
 
     # print findings from found unique errors in current log file
-    print("-------------------------------------------------------------------------------")
+    print("\n-------------------------------------------------------------------------------")
     print(f"{filename} - Total unique errors: {match_list.__len__()} (sorted by {args.sort})")
     print("-------------------------------------------------------------------------------")
     for error in match_list:
@@ -151,7 +158,7 @@ for file in os.listdir(logs_directory):
 
 # YAML CONFIG VALIDATION MAIN EXECUTION OF BUSINESS LOGIC - loop through yaml files and run bash linter on each
 if args.yaml != False:
-    print("///////////////////////////////////////////////////////////////////////////////")
+    print("\n///////////////////////////////////////////////////////////////////////////////")
     print("YAML LINTING (requires install of https://yamllint.readthedocs.io/en/stable/index.html)")
     print("///////////////////////////////////////////////////////////////////////////////")
     try:
@@ -167,13 +174,140 @@ if args.yaml != False:
     except:
         print("**ERROR: yamllint must be installed to perform yaml linting steps - see https://yamllint.readthedocs.io/en/stable/index.html**")
 
+# -------------------------------
+# misc configurations/info
+# -------------------------------
+print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+print("MISCELLANEOUS CONFIGS/INFO")
+print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
+def find_file(names, path):
+    for root, dirs,files in os.walk(path):
+        for name in names:
+            if name in files:
+                return os.path.join(root, name)
 
-# arg parse module
-# multi-string search to find combination of error with another term by adding an optional arg
+# summarize status.log/info.log
+status_info_path = find_file(["status.log", "info.log"], selected_path) #may need to reconsider this as it seems some agent 5 flares can have both status.log and info.log so it will find the status.log but not contain any of the agent 5 matches
+print(f"Summary of {status_info_path}:")
+with open(status_info_path) as file:
+    for line in file:
+        if re.match(r'(?<!\S)Agent \(v', line):
+            print(f"    {line.rstrip()}")
+        elif "Collector (v" in line:
+            print(f"    Agent Version: {line[10:].rstrip()}")
+        if "  os:" in line:
+            print(line.rstrip())
+        if "  platformVersion:" in line:
+            print(line.rstrip())
+        if "  hostname:" in line:
+            print(line.rstrip())
+        if "NTP offset:" in line:
+            print(line.rstrip())
+        if "Check Runners:" in line:
+            print(f"  {line.rstrip()}")
+
+# rows for comparison table of configs from datadog.yaml/runtime_config_dump.yaml/envvars.log
+log_levels = ['log_level:', 'N/A', 'N/A', 'N/A']
+apm_enabled = ['apm_enabled:', 'N/A', 'N/A', 'N/A']
+logs_enabled = ['logs_enabled:', 'N/A', 'N/A', 'N/A']
+check_runners = ['check_runners:', 'N/A', 'N/A', 'N/A']
+use_dogstatsd = ['use_dogstatsd:', 'N/A', 'N/A', 'N/A']
+dogstatsd_non_local_traffic = ['dogstatsd_non_local_traffic:', 'N/A', 'N/A', 'N/A']
+process_agent = ['process_agent_enabled:', 'N/A', 'N/A', 'N/A']
+
+def get_config_val(line):
+    return re.search(r'(?<=: )[^\]]+', line.rstrip()).group(0)
+
+# summarize datadog.yaml/.conf
+try:
+    datadog_conf_path = find_file(["datadog.yaml", "datadog.conf"], selected_path)
+    with open(datadog_conf_path) as file:
+    # consider refactoring the loop below into a function shared by runtime dump
+        for line in file:
+            if "log_level:" in line:
+                log_levels[1] = get_config_val(line)
+            if "apm_config:" in line:
+                apm_enabled[1] = re.search(r'(?<=: )[^\]]+', next(file)[2:].rstrip()).group(0)
+            if "logs_enabled:" in line:
+                logs_enabled[1] = get_config_val(line)
+            if "check_runners:" in line:
+                check_runners[1] = get_config_val(line)
+            if "use_dogstatsd:" in line:
+                use_dogstatsd[1] = get_config_val(line)
+            if "dogstatsd_non_local_traffic:" in line:
+                dogstatsd_non_local_traffic[1] = get_config_val(line)
+            if "process_config:" in line:
+                process_agent[1] = re.search(r'(?<=: )[^\]]+', next(file)[2:].rstrip()).group(0)
+except:
+    pass
+
+# summarize runtime config dump
+try:
+    runtime_conf_path = find_file(["runtime_config_dump.yaml"], selected_path)
+    with open(runtime_conf_path) as file:
+    # consider refactoring the loop below into a function ddyaml
+        for line in file:
+            if "log_level:" in line:
+                log_levels[2] = get_config_val(line)
+            if "apm_config:" in line:
+                apm_enabled[2] = re.search(r'(?<=: )[^\]]+', next(file)[2:].rstrip()).group(0)
+            if "logs_enabled:" in line:
+                logs_enabled[2] = get_config_val(line)
+            if "check_runners:" in line:
+                check_runners[2] = get_config_val(line)
+            if "use_dogstatsd:" in line:
+                use_dogstatsd[2] = get_config_val(line)
+            if "dogstatsd_non_local_traffic:" in line:
+                dogstatsd_non_local_traffic[2] = get_config_val(line)
+            if "process_config:" in line:
+                process_agent[1] = re.search(r'(?<=: )[^\]]+', next(file)[2:].rstrip()).group(0)
+except:
+    pass
+
+def get_envvar(line):
+    return re.search(r'(?<==)[^\]]+', line.rstrip()).group(0)
+
+#summarize envvars.log
+try:
+    envvars_path = find_file(["envvars.log"], selected_path)
+    with open(envvars_path) as file:
+        for line in file:
+            if "-  DD_LOG_LEVEL=" in line:
+                log_levels[3] = get_envvar(line)
+            if "-  DD_APM_ENABLED" in line:
+                apm_enabled[3] = get_envvar(line)
+            if "-  DD_LOGS_ENABLED" in line:
+                logs_enabled[3] = get_envvar(line)
+            if "-  DD_CHECK_RUNNERS" in line:
+                check_runners[3] = get_envvar(line)
+            if "-  DD_DOGSTATSD_ENABLED" in line:
+                use_dogstatsd[3] = get_envvar(line)
+            if "-  DD_DOGSTATSD_NON_LOCAL_TRAFFIC" in line:
+                dogstatsd_non_local_traffic[3] = get_envvar(line)
+            if "- DD_PROCESS_AGENT_ENABLED" in line:
+                process_agent[3] = get_envvar(line)
+except:
+    pass
+
+# print a comparison table for configs from their various sources
+print("\nNOTE: envvar.log values take precedence over runtime_config_dump.yaml and the config dump over datadog.yaml")
+print("NOTE: Table does not support agent v5 so check datadog.conf for configs")
+configs_arrs = [log_levels, check_runners, apm_enabled, logs_enabled, process_agent,
+                use_dogstatsd, dogstatsd_non_local_traffic]
+try:
+    t = PrettyTable(['', 'datadog.yaml', 'runtime_config_dump.yaml', 'envvars.log'])
+    for config in configs_arrs:
+        t.add_row(config)
+    print(t)
+except:
+    print("\n***IT SEEMS PrettyTable IS NOT INSTALLED SO YOU GOT THIS UGLY PRINTOUT***")
+    print("You should probably install it using `pip install PrettyTable` https://pypi.org/project/PrettyTable/")
+    print("\nConfig - datadog.yaml - runtime_config_dump.yaml - envvars.log")
+    for config in configs_arrs:
+        print(f"{config[0]} - {config[1]} - {config[2]} - {config[3]}")
+
 # show most common agent, most common integration, most common error from optional argument
-# option to sort by count
-
 # compare config check.log vs yaml for each integration config to determine possible config errors (beyond just yaml)
     # config check may not have a value that looks to be correctly configed and passed yaml check
     # would need to use python yaml parser to create dict and check it against dict from config yaml
@@ -181,4 +315,4 @@ if args.yaml != False:
 
 # https://pyyaml.org/wiki/PyYAMLDocumentation
 # https://yamllint.readthedocs.io/en/stable/quickstart.html#running-yamllint
-
+# https://pypi.org/project/PrettyTable/

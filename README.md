@@ -27,7 +27,8 @@ Navigate to file directory (wherever you placed it) in terminal and run:
 
 - Printing misc status and configs in a handy table requires installation of PrettyTable (https://pypi.org/project/PrettyTable/)
 
-    `pip3 install PrettyTable` Note: Some users have run this with `sudo` or even `sudo -H` and/or used the `pip` instead of `pip3`. 
+    `pip3 install PrettyTable`
+    Note: Some users have run this with `sudo` or even `sudo -H` and/or used the `pip` instead of `pip3`. 
 
 - That'$ it! Datadog to the rescue! Now you can run the following command to use the script (and explore options below to get the most customization when investigating):
 
